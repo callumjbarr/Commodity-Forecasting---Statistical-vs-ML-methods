@@ -73,33 +73,33 @@ for col in dataDf.columns[1:2]: #remove 2 for final
 
 
     #nbeats model
-        #nbeats_model = NBEATS(h = h,
-                    #input_size=12, #number of lags
-                    #max_steps = 2
-                    #n_blocks=[1, 1, 1] #Default used -
-                    #mlp_units=[[512, 512], [512, 512]],
-                    #)
+        nbeats_model = NBEATS(h = h,
+                    input_size=12, #number of lags
+                    max_steps = 2
+                    n_blocks=[1, 1, 1] #Default used -
+                    mlp_units=[[512, 512], [512, 512]],
+                    )
     # nbeats fit and forecast
-        #nbeats_fcast = NeuralForecast(models=[nbeats_model], freq='MS')
-        #nbeats_fcast.fit(df=trainDf)
-        #nbeats_forecast = nbeats_fcast.predict(futr_df=testDf)
+        nbeats_fcast = NeuralForecast(models=[nbeats_model], freq='MS')
+        nbeats_fcast.fit(df=trainDf)
+        nbeats_forecast = nbeats_fcast.predict(futr_df=testDf)
 
 
     #neural Prophet
-        #neural_lags = 12
-        #neural_trainDf = trainDf.iloc[neural_lags:].drop(columns=['unique_id'])
-        #test_with_lags = pd.concat([trainDf[-neural_lags:], testDf], ignore_index=True)
-        #neural_testDf = test_with_lags.drop(columns=['unique_id'])
+        neural_lags = 12
+        neural_trainDf = trainDf.iloc[neural_lags:].drop(columns=['unique_id'])
+        test_with_lags = pd.concat([trainDf[-neural_lags:], testDf], ignore_index=True)
+        neural_testDf = test_with_lags.drop(columns=['unique_id'])
 
 
-        #neural_prophet_model = NeuralProphet(n_lags = neural_lags, n_forecasts= h, changepoints_range=0.9)
-        #neural_prophet_fit = neural_prophet_model.fit(neural_trainDf, freq='MS')
-        #neural_prophet_forecast = neural_prophet_model.predict(neural_testDf)
-        #neural_prophet_forecast_sub = neural_prophet_forecast.tail(h).reset_index(drop=True)
+        neural_prophet_model = NeuralProphet(n_lags = neural_lags, n_forecasts= h, changepoints_range=0.9)
+        neural_prophet_fit = neural_prophet_model.fit(neural_trainDf, freq='MS')
+        neural_prophet_forecast = neural_prophet_model.predict(neural_testDf)
+        neural_prophet_forecast_sub = neural_prophet_forecast.tail(h).reset_index(drop=True)
 
-        #cols_select = [col for col in neural_prophet_forecast_sub.columns if col.startswith("yhat")]
-        #neural_prophet_forecast_sub["yhat1"] = neural_prophet_forecast_sub[cols_select].bfill(axis=1).iloc[:, 0]
-        #neural_prophet_forecast_sub = neural_prophet_forecast_sub[["ds", "y", "yhat1"]]
+        cols_select = [col for col in neural_prophet_forecast_sub.columns if col.startswith("yhat")]
+        neural_prophet_forecast_sub["yhat1"] = neural_prophet_forecast_sub[cols_select].bfill(axis=1).iloc[:, 0]
+        neural_prophet_forecast_sub = neural_prophet_forecast_sub[["ds", "y", "yhat1"]]
 
     ##################################################################################################
     # add model forecasts to array
@@ -111,8 +111,8 @@ for col in dataDf.columns[1:2]: #remove 2 for final
             'Actual': testDf.y,
             'AVG': simple_ave_predict.prediction,
             'nHits_forecast': nhits_forecast['NHITS'],
-            #'nBeats_forecast': nbeats_forecast['NBEATS'],
-            #'neural_prophet_forecast': neural_prophet_forecast_sub['yhat1'],
+            'nBeats_forecast': nbeats_forecast['NBEATS'],
+            'neural_prophet_forecast': neural_prophet_forecast_sub['yhat1'],
         })
 
     # find num cols and define list for errors
